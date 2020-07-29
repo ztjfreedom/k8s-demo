@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deploy
+spec:
+  replicas: 3
+  revisionHistoryLimit: 15  # 只保留最近的15个版本用于回滚（为了回滚k8s会保留之前的rs，rs和revision history一一对应）
+  minReadySeconds: 5
+  strategy:
+    type: RollingUpdate  # 滚动升级
+    rollingUpdate:
+      maxSurge: 1  # 升级过程中最多可以多出1个Pod
+      maxUnavailable: 1  # 升级过程中最多可以有1个Pod处于无法服务状态
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+          name: nginxweb

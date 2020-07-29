@@ -1,0 +1,1 @@
+kubectl autoscale deployment wordpress-deploy --cpu-percent=50 --min=1 --max=5 -n blog

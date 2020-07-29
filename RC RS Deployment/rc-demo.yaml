@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: rc-demo
+  labels:
+    app: rc
+spec:
+  replicas: 3  # 不指定的话默认为1
+  # selector:
+  #   app: rc  # 筛选label为app:rc的Pod，在template中定义了，不指定selector的话默认筛选下面templates中的Pod
+  template:  # template默认就是Pod
+    metadata:
+      # name:  # pod-name  这里是模版，如果3个replicas都在一个node上定义了名字会重复，不指定name系统会自动生成
+      labels:
+        app: rc
+    spec:
+      containers:
+      - name: nginx-demo  # 不同Pod内的container名字可以相同
+        image: nginx
+        ports:
+        - containerPort: 80

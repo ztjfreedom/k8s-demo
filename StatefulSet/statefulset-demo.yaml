@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+spec:
+  ports:
+  - port: 80
+  name: web
+  clusterIP: None  # Headless Service
+  selector:  # 必须要同时满足这2个selector
+    app: nginx
+    role: stateful
+
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: web
+spec:
+  serviceName: "nginx"
+  replicas: 2  # 多个副本时，StatefulSet的特性是一个一个创建
+  template:
+    metadata:
+      labels:  # 和上面的Service相匹配
+        app: nginx
+        role: stateful
+    spec:
+      containers:
+      - name: nginx
+        image: cnych/nginx-slim:0.8
+        ports:
+        - containerPort: 80
+          name: web
+        volumeMounts:
+        - name: www
+          mountPath: /usr/share/nginx/html
+  volumeClaimTemplates:  # 会自动创建一个pvc，自动与之前创建的pv关联
+  - metadata:
+      name: www  # 与volumeMounts一致
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 1Gi

@@ -1,0 +1,23 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: cronjob-demo
+spec:
+  successfullJobsHistoryLimit: 10  # 限制周期性运行时，保留的job数量
+  failedJobsHistoryLimit: 10
+  schedule: "*/1 * * * *"  # 每一分钟执行一次
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: cronjob-demo
+        spec:
+          restartPolicy: OnFailure
+          containers:
+          - name: counter
+            image: busybox
+            command:
+            - "bin/sh"
+            - "-c"
+            - "for i in 9 8 7 6 5 4 3 2 1; do echo $i; done"

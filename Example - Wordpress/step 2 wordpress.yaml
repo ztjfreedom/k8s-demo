@@ -1,0 +1,44 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: wordpress-deploy
+  namespace: blog
+  labels:
+    app: wordpress
+spec:
+  template:
+    metadata:
+      labels:
+        app: wordpress
+    spec:
+      containers:
+      - name: wordpress
+        image: wordpress
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+          name: wdport
+        env:
+        - name: WORDPRESS_DB_HOST
+          value: "mysql: 3306"  # mysql不在同一个Pod中，这里配置mysql的Service的ClusterIP，使用该Service的名字就可以
+        - name: WORDPRESS_DB_USER
+          value: wordpress
+        - name: WORDPRESS_DB_PASSWORD
+          value: wordpress
+
+---
+#创建一个可以让外网访问的Service，即NodePort
+apiVersion: v1
+kind: Service
+metadata:
+  name: wordpress
+  namespace: blog
+spec:
+  selector:  # 选择的是Pod的label
+    app: wordpress
+  type: NodePort  # 可以让外网访问的Service类型
+  ports:
+  - name: wordpressport
+    protocol: TCP
+    port: 80
+    targetPort: wdport  # 对应容器当中的端口

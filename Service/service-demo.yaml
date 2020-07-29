@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-demo
+  # namespace: default
+spec:
+  selector:
+    app: nginx  # 选择相同标签的Pod
+  ports:
+  - name: service-demo-http
+    protocol: TCP  # Service支持TCP和UDP协议
+    port: 80  # Service的端口
+    targetPort: nginxweb  # Pod中容器的端口，如果Pod中定义了name，这里推荐填写容器的name

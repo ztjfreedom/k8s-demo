@@ -1,0 +1,53 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: mysql-deploy
+  namespace: blog
+  labels:
+    app: mysql
+spec:
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql
+        image: mysql:5.7
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3306
+          name: dbport
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: rootPassW0rd
+        - name: MYSQL_DATABASE
+          value: wordpress
+        - name: MYSQL_USER
+          value: wordpress
+        - name: MYSQL_PASSWORD
+          value: wordpress
+        volumeMounts:
+        - name: db
+          mountPath: /var/lib/mysql
+
+      volumes:
+      - name: db
+        hostPath:
+          path: /var/lib/mysql
+
+---
+# 此时wordpress和mysql不在一个pod里，所以创建Service提供服务
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysql
+  namespace: blog
+spec:
+  selector:  # 选择的是Pod的label
+    app: mysql
+  ports:
+  - name: mysqlport
+    protocol: TCP
+    port: 3306  # mysql的Service对应的端口，也可以指定为80之类的
+    targetPort: dbport  # 对应容器当中的端口

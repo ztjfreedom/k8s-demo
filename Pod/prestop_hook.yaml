@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hook-demo2
+  labels:
+    app: hook
+spec:
+  containers:
+  - name: hook-demo2
+    image: nginx
+    ports:
+    - name: webport
+      containerPort: 80
+    volumeMounts:
+    - name: message
+      mountPath: /usr/share
+    lifecycle:
+      preStop:
+        exec:
+          # command: ["/usr/sbin/nginx","-s","quit"] 优雅关闭的正确配置，下面的是为了验证preStop有被执行
+          command: ['/bin/sh', '-c', 'echo Hello from the preStop Handler > /usr/share/message']
+  volumes:
+  - name: message
+    hostPath:
+      path: /tmp

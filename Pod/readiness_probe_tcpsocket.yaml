@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: readiness-tcpsocket
+  labels:
+    app: readiness-tcpsocket
+spec:
+  containers:
+  - name: readiness-tcpsocket
+    image: cnych/liveness
+    args:
+    - /server
+    livenessProbe:
+      httpGet:  # http的方式，http请求返回正常的返回码（200-400之间）时，健康检查通过
+        path: /healthz
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 5
+    readinessProbe:
+      tcpSocket:  # tcpSocket的方式，检查端口是否可以访问
+        port: 8080
+      initialDelaySeconds: 3
+      periodSeconds: 3
